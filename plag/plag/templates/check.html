@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Similarity Checker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            min-height: 120px;
+            resize: vertical;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .file-upload-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .file-upload-label {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .file-upload-label:hover {
+            background: #2980b9;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-name {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        button[type="submit"]:hover {
+            background: #27ae60;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .similarity-score {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #2ecc71, #3498db);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+        .verdict {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .plagiarized {
+            background-color: #ffebee;
+            color: #e74c3c;
+        }
+        .not-plagiarized {
+            background-color: #e8f5e9;
+            color: #27ae60;
+        }
+        .details {
+            margin-top: 20px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+        .detail-value {
+            font-weight: 500;
+        }
+        .logout-btn {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        .icon {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-file-alt icon"></i>Document Similarity Checker</h1>
+        
+        <form id="similarityForm" enctype="multipart/form-data">
+            <div class="input-section">
+                <label for="doc1"><i class="fas fa-file-word icon"></i>Document 1:</label>
+                <textarea id="doc1" name="doc1" placeholder="Paste your first document text here..."></textarea>
+                <div class="file-upload-container">
+                    <label class="file-upload-label">
+                        <i class="fas fa-upload icon"></i>Upload File
+                        <input type="file" id="file1" name="file1" accept=".txt,.pdf,.doc,.docx">
+                    </label>
+                    <span id="file1-name" class="file-name">No file selected</span>
+                </div>
+            </div>
+            
+            <div class="input-section">
+                <label for="doc2"><i class="fas fa-file-word icon"></i>Document 2:</label>
+                <textarea id="doc2" name="doc2" placeholder="Paste your second document text here..."></textarea>
+                <div class="file-upload-container">
+                    <label class="file-upload-label">
+                        <i class="fas fa-upload icon"></i>Upload File
+                        <input type="file" id="file2" name="file2" accept=".txt,.pdf,.doc,.docx">
+                    </label>
+                    <span id="file2-name" class="file-name">No file selected</span>
+                </div>
+            </div>
+            
+            <button type="submit"><i class="fas fa-search icon"></i>Check Similarity</button>
+        </form>
+        
+        <div id="result">
+            <div class="result-header"><i class="fas fa-chart-bar icon"></i>Results</div>
+            
+            <div class="similarity-score">
+                Similarity: <span id="score">0</span>%
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div id="verdict" class="verdict">
+                <!-- Will be filled by JavaScript -->
+            </div>
+            
+            <div class="details">
+                <div class="detail-row">
+                    <span class="detail-label"><i class="fas fa-ruler icon"></i>Document 1 length:</span>
+                    <span class="detail-value" id="doc1-length">0 characters</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label"><i class="fas fa-ruler icon"></i>Document 2 length:</span>
+                    <span class="detail-value" id="doc2-length">0 characters</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label"><i class="fas fa-words icon"></i>Common words:</span>
+                    <span class="detail-value" id="common-words">None</span>
+                </div>
+            </div>
+        </div>
+        
+        <a href="/login" class="logout-btn"><i class="fas fa-sign-out-alt icon"></i>Logout</a>
+    </div>
+
+    <script>
+        // Show selected file names
+        document.getElementById('file1').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'No file selected';
+            document.getElementById('file1-name').textContent = fileName;
+        });
+        
+        document.getElementById('file2').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'No file selected';
+            document.getElementById('file2-name').textContent = fileName;
+        });
+        
+        // Handle form submission
+        document.getElementById('similarityForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin icon"></i>Processing...';
+            submitBtn.disabled = true;
+            
+            fetch('/check-similarity', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                
+                const resultDiv = document.getElementById('result');
+                const similarityPercent = Math.round(data.similarity_score * 100);
+                
+                // Update UI with results
+                document.getElementById('score').textContent = similarityPercent;
+                document.getElementById('progressBar').style.width = similarityPercent + '%';
+                document.getElementById('doc1-length').textContent = data.doc1_length + ' characters';
+                document.getElementById('doc2-length').textContent = data.doc2_length + ' characters';
+                document.getElementById('common-words').textContent = 
+                    data.common_words && data.common_words.length ? 
+                    data.common_words.slice(0, 5).join(', ') + (data.common_words.length > 5 ? '...' : '') : 
+                    'None';
+                
+                // Determine verdict
+                const verdictDiv = document.getElementById('verdict');
+                if (similarityPercent >= 75) {
+                    verdictDiv.className = 'verdict plagiarized';
+                    verdictDiv.innerHTML = '<i class="fas fa-exclamation-triangle icon"></i>Plagiarized Content Detected!';
+                } else if (similarityPercent >= 50) {
+                    verdictDiv.className = 'verdict plagiarized';
+                    verdictDiv.innerHTML = '<i class="fas fa-exclamation-circle icon"></i>Partial Plagiarism Suspected';
+                } else if (similarityPercent >= 25) {
+                    verdictDiv.className = 'verdict not-plagiarized';
+                    verdictDiv.innerHTML = '<i class="fas fa-check-circle icon"></i>Some Similarity Found';
+                } else {
+                    verdictDiv.className = 'verdict not-plagiarized';
+                    verdictDiv.innerHTML = '<i class="fas fa-check-circle icon"></i>No Plagiarism Detected';
+                }
+                
+                resultDiv.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing your request.');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
